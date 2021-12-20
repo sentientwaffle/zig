@@ -758,6 +758,10 @@ pub fn HashMapUnmanaged(
                 return !self.isUsed() and self.fingerprint == tombstone;
             }
 
+            pub fn isFree(self: Metadata) bool {
+                return self.used == 0 and self.fingerprint == free;
+            }
+
             pub fn takeFingerprint(hash: Hash) FingerPrint {
                 const hash_bits = @typeInfo(Hash).Int.bits;
                 const fp_bits = @typeInfo(FingerPrint).Int.bits;
@@ -1115,7 +1119,8 @@ pub fn HashMapUnmanaged(
             var idx = @truncate(usize, hash & mask);
 
             var metadata = self.metadata.? + idx;
-            while ((metadata[0].isUsed() or metadata[0].isTombstone()) and limit != 0) {
+            //while ((metadata[0].isUsed() or metadata[0].isTombstone()) and limit != 0) {
+            while (!metadata[0].isFree() and limit != 0) {
                 if (metadata[0].isUsed() and metadata[0].fingerprint == fingerprint) {
                     const test_key = &self.keys()[idx];
                     // If you get a compile error on this line, it means that your generic eql
@@ -1294,7 +1299,8 @@ pub fn HashMapUnmanaged(
 
             var first_tombstone_idx: usize = self.capacity(); // invalid index
             var metadata = self.metadata.? + idx;
-            while ((metadata[0].isUsed() or metadata[0].isTombstone()) and limit != 0) {
+            //while ((metadata[0].isUsed() or metadata[0].isTombstone()) and limit != 0) {
+            while (!metadata[0].isFree() and limit != 0) {
                 if (metadata[0].isUsed() and metadata[0].fingerprint == fingerprint) {
                     const test_key = &self.keys()[idx];
                     // If you get a compile error on this line, it means that your generic eql
