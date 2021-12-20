@@ -750,6 +750,8 @@ pub fn HashMapUnmanaged(
             fingerprint: FingerPrint = free,
             used: u1 = 0,
 
+            const free_slot = @bitCast(u8, Metadata{});
+
             pub fn isUsed(self: Metadata) bool {
                 return self.used == 1;
             }
@@ -759,7 +761,8 @@ pub fn HashMapUnmanaged(
             }
 
             pub fn isFree(self: Metadata) bool {
-                return self.used == 0 and self.fingerprint == free;
+                //return self.used == 0 and self.fingerprint == free;
+                return @bitCast(u8, self) == free_slot;
             }
 
             pub fn takeFingerprint(hash: Hash) FingerPrint {
