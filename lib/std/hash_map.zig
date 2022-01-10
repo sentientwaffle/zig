@@ -1122,7 +1122,7 @@ pub fn HashMapUnmanaged(
             var idx = @truncate(usize, hash & mask);
 
             var metadata = self.metadata.? + idx;
-            while (!metadata[0].isFree() and limit != 0) {
+            while (true) {
                 if (metadata[0].isUsed() and metadata[0].fingerprint == fingerprint) {
                     const test_key = &self.keys()[idx];
                     // If you get a compile error on this line, it means that your generic eql
@@ -1141,6 +1141,8 @@ pub fn HashMapUnmanaged(
                 limit -= 1;
                 idx = (idx + 1) & mask;
                 metadata = self.metadata.? + idx;
+
+                if (metadata[0].isFree() or limit == 0) break;
             }
 
             return null;
@@ -1301,7 +1303,7 @@ pub fn HashMapUnmanaged(
 
             var first_tombstone_idx: usize = self.capacity(); // invalid index
             var metadata = self.metadata.? + idx;
-            while (!metadata[0].isFree() and limit != 0) {
+            while (true) {
                 if (metadata[0].isUsed() and metadata[0].fingerprint == fingerprint) {
                     const test_key = &self.keys()[idx];
                     // If you get a compile error on this line, it means that your generic eql
@@ -1326,6 +1328,8 @@ pub fn HashMapUnmanaged(
                 limit -= 1;
                 idx = (idx + 1) & mask;
                 metadata = self.metadata.? + idx;
+
+                if (metadata[0].isFree() or limit == 0) break;
             }
 
             if (first_tombstone_idx < self.capacity()) {
